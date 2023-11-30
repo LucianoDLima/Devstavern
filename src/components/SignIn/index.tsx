@@ -60,9 +60,10 @@ function SignIn() {
 
   // If either the password or the email inputs are empty, this function stops the sign in api from being called.
   function handleEmptyInputs(): boolean {
-    const emailForm = formData.email === '';
-    const passwordForm = formData.password === '';
-
+    const emailForm = formData.email?.trim().length === +0 || formData.email === null;
+    const passwordForm = formData.password?.trim().length === +0 || formData.password === null;
+    console.log(emailForm);
+    
     if (emailForm || passwordForm) {
       setCredentials({
         emptyEmail: emailForm ? true : false,
