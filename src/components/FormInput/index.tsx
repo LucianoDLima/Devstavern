@@ -3,9 +3,9 @@ import FormError from '../FormError';
 interface FormInputProps {
   type: string;
   name: string;
-  placeholder?: string;
-  onChange?: any;
-  errorMessage?: any;
+  placeholder: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  errorMessage: string;
 }
 
 function FormInput({ type, name, placeholder, onChange, errorMessage }: FormInputProps) {

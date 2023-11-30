@@ -2,7 +2,7 @@ import { FaGithub } from 'react-icons/fa';
 import FormInput from '../FormInput';
 import FormButton from '../FormButton';
 import { useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../service/supabase';
 import StraightLine from '../StraightLine';
 
 interface CredentialsState {
@@ -62,8 +62,8 @@ function SignIn() {
   function handleEmptyInputs(): boolean {
     const emailForm = formData.email?.trim().length === +0 || formData.email === null;
     const passwordForm = formData.password?.trim().length === +0 || formData.password === null;
-    console.log(emailForm);
-    
+    console.log(credentials.emptyEmail);
+
     if (emailForm || passwordForm) {
       setCredentials({
         emptyEmail: emailForm ? true : false,
