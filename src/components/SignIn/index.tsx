@@ -4,30 +4,96 @@ import FormButton from '../FormButton';
 import { useState } from 'react';
 import { supabase } from '../../service/supabase';
 import StraightLine from '../StraightLine';
-
-interface CredentialsState {
-  emptyEmail: boolean | null;
-  emptyPassword: boolean | null;
-  isWrong: boolean | null;
-}
+import { useNavigate } from 'react-router-dom';
 
 interface FormDataState {
   email: string | null;
   password: string | null;
 }
 
+interface InvalidInputState {
+  email: string;
+  password: string;
+}
+
 function SignIn() {
-  const [credentials, setCredentials] = useState<CredentialsState>({
-    emptyEmail: null,
-    emptyPassword: null,
-    isWrong: null,
-  });
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormDataState>({
     email: null,
     password: null,
   });
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
+  const [invalidInput, setInvalidInput] = useState<InvalidInputState>({
+    email: '',
+    password: '',
+  });
+
+  /**
+   * Handle email sign in
+   */
+  async function handleEmailSignIn(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
+    e.preventDefault();
+    // Check for invalid inputs (empty or just wrong format)
+    if (!handleInvalidInputs()) return;
+    
+    setLoading(true)
+
+    try {
+      // The sign in attempt
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email!,
+        password: formData.password!,
+      });
+
+      // Debug - [DELETE REMINDER]
+      console.log(data, error);
+
+      setLoading(false)
+
+      // Check if the e-mail or password was invalid
+      if (error) {
+        setInvalidInput({
+          email: error.message,
+          password: error.message,
+        });
+
+        return
+      }
+      navigate('/home')
+    } catch (error) {
+      console.log(`handleEmailSignIn - Catch: ${error}`);
+    }
+  }
+
+  /**
+   * Handle Github sign in
+   * If successful, redirect the user to the main page
+   */
+  async function handleGithubSignIn(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    try {
+      // The sign in attempt. Redirect if successful
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: 'http://localhost:5173/home',
+        },
+      });
+
+      // Debug - [DELETE REMINDER]
+      console.log(data, error);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   *  Update the formData based on user input
+   */
+  function handleInputChanges(e: React.ChangeEvent<HTMLInputElement>): void {
     setFormData((prevFormData) => {
       return {
         ...prevFormData,
@@ -36,77 +102,124 @@ function SignIn() {
     });
   }
 
-  async function handleSignIn(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
-    e.preventDefault();
-    if (handleEmptyInputs()) return;
+  /**
+   * Call both email and password validation functions
+   *
+   * @returns {boolean} - If both functions return true, then this one returns true too
+   */
+  function handleInvalidInputs(): boolean {
+    const email = handleInvalidEmail();
+    const password = handleInvalidPassword();
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email!,
-        password: formData.password!,
-      });
-
-      const invalidInputs = error?.status === 400;
-
-      setCredentials({
-        emptyEmail: false,
-        emptyPassword: false,
-        isWrong: invalidInputs ? true : false,
-      });
-    } catch (error) {
-      console.log(`HandleSignIn - Catch: ${error}`);
-    }
-  }
-
-  // If either the password or the email inputs are empty, this function stops the sign in api from being called.
-  function handleEmptyInputs(): boolean {
-    const emailForm = formData.email?.trim().length === +0 || formData.email === null;
-    const passwordForm = formData.password?.trim().length === +0 || formData.password === null;
-    console.log(credentials.emptyEmail);
-
-    if (emailForm || passwordForm) {
-      setCredentials({
-        emptyEmail: emailForm ? true : false,
-        emptyPassword: passwordForm ? true : false,
-        isWrong: null,
-      });
+    if (email && password) {
       return true;
     }
     return false;
   }
 
-  function handleErrorMessageEmail() {
-    return credentials.emptyEmail ? 'E-mail cannot be empty.' : credentials.isWrong ? 'Invalid e-mail and/or password' : '';
+  /**
+   * Check if email is not empty and is valid format
+   *
+   * @returns {boolean} - True if both is true, false otherwise
+   */
+  function handleInvalidEmail(): boolean {
+    const email = formData.email?.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    if (!email) {
+      setInvalidInput((prevInvalidInput) => ({
+        ...prevInvalidInput,
+        email: 'Cannot be empty',
+      }));
+      return false;
+    }
+
+    if (!emailPattern.test(email)) {
+      setInvalidInput((prevInvalidInput) => ({
+        ...prevInvalidInput,
+        email: 'Invalid email',
+      }));
+      return false;
+    }
+
+    setInvalidInput((prevInvalidInput) => ({
+      ...prevInvalidInput,
+      email: '',
+    }));
+
+    return true;
   }
 
-  function handleErrorMessagePassword() {
-    return credentials.emptyPassword ? 'Password cannot be empty.' : credentials.isWrong ? 'Invalid e-mail and/or password' : '';
+  /**
+   * Check if password is not empty and is valid format
+   *
+   * @returns {boolean} - True if both is true, false otherwise
+   */
+  function handleInvalidPassword(): boolean {
+    const password = formData.password?.trim();
+    const passwordLength = password?.length!;
+
+    if (!password) {
+      setInvalidInput((prevInvalidInput) => ({
+        ...prevInvalidInput,
+        password: 'Cannot be empty',
+      }));
+      return false;
+    }
+
+    if (passwordLength > 0 && passwordLength < 6) {
+      setInvalidInput((prevInvalidInput) => ({
+        ...prevInvalidInput,
+        password: 'Must be at least 6 characters long',
+      }));
+      return false;
+    }
+
+    setInvalidInput((prevInvalidInput) => ({
+      ...prevInvalidInput,
+      password: '',
+    }));
+    return true;
   }
 
+  /**
+   * Map <FormInput> element
+   */
+  const inputDetails = [
+    {
+      type: 'email',
+      name: 'email',
+      placeholder: 'E-mail',
+      onChange: handleInputChanges,
+      errorMessage: invalidInput.email,
+    },
+    {
+      type: 'password',
+      name: 'password',
+      placeholder: 'Password',
+      onChange: handleInputChanges,
+      errorMessage: invalidInput.password,
+    },
+  ];
   return (
     <>
       <div className='flex flex-col gap-3'>
-        <FormInput
-          type='email'
-          name='email'
-          placeholder='E-mail'
-          onChange={handleChange}
-          errorMessage={handleErrorMessageEmail()}
-        />
-
-        <FormInput
-          type='password'
-          name='password'
-          placeholder='Password'
-          onChange={handleChange}
-          errorMessage={handleErrorMessagePassword()}
-        />
+        {inputDetails.map((input, index) => (
+          <FormInput
+            key={index}
+            type={input.type}
+            name={input.name}
+            placeholder={input.placeholder}
+            onChange={input.onChange}
+            errorMessage={input.errorMessage}
+          />
+        ))}
 
         <FormButton
           type='submit'
           text='Sign in'
           className='bg-blue-900 text-white'
-          onClick={handleSignIn}
+          onClick={handleEmailSignIn}
         />
 
         <a
@@ -124,6 +237,7 @@ function SignIn() {
         text='Sign in with Github'
         icon={<FaGithub />}
         className='bg-black text-white'
+        onClick={handleGithubSignIn}
       />
     </>
   );

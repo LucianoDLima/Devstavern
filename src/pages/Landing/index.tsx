@@ -4,7 +4,7 @@ import SignUp from '../../components/SIgnUp';
 import SignIn from '../../components/SignIn';
 
 function Landing() {
-  const [isSignIn, setIsSignIn] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(true);
 
   function handleIsSignIn() {
     setIsSignIn((prev) => !prev);

@@ -35,23 +35,17 @@ function SignUp() {
     confirmPassword: '',
   });
 
-  function handleChange(e: any) {
-    setFormData((prevFormData) => {
-      return {
-        ...prevFormData,
-        [e.target.name]: e.target.value,
-      };
-    });
-  }
-
-  async function handleSignUp(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
+  /**
+   * Handle the sign up process when the user submits the email sign-up form
+   */
+  async function handleEmailSignUp(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();
-    if (!handleInvalidInputs()) return;
-    console.log('Form complete! Here the account would have been created should server be running');
 
-    return;
-    /* Code below creates an account. I'll not run it since there's a rate limit of 4 emaisl per hour and I don't wanna go overboard by mistake before setting up my own custom SMTP */
+    // Check for invalid inputs (empty or just wrong format)
+    if (!handleInvalidInputs()) return;
+
     try {
+      // The sign up attempt
       const { data, error } = await supabase.auth.signUp({
         email: formData.email!,
         password: formData.password!,
@@ -62,14 +56,61 @@ function SignUp() {
         },
       });
 
+      // Debug - [DELETE REMINDER]
       console.log(data, error);
+
+      if (error) {
+        setInvalidInput((prevInvalidInput) => ({
+          ...prevInvalidInput,
+          email: error.message,
+        }));
+        return;
+      }
+      
+      // If account is created successfully, reloads the page
+      window.location.reload();
     } catch (error) {
-      console.log(`HandleSignUp error: ${error}`);
+      console.log(`handleEmailSignUp error: ${error}`);
     }
   }
 
+  /**
+   * Handle Github sign up
+   * If successful, redirect the user to the main page
+   */
+  async function handleGithubSignUp(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    try {
+      // The sign in attempt. Redirect if successful
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: 'http://localhost:5173/home',
+        },
+      });
+
+      console.log(data, error);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+   *  Update the formData based on user input
+   */
+  function handleChange(e: any) {
+    setFormData((prevFormData) => {
+      return {
+        ...prevFormData,
+        [e.target.name]: e.target.value,
+      };
+    });
+  }
+  /**
+   * Handles all the invalid inputs
+   * @returns {boolean} true if all inputs have been validated
+   */
   function handleInvalidInputs(): boolean {
-    // Handles all the invalid inputs, if any single one of them returns false, it prevents the user from creating a new account
     const name = handleInvalidName();
     const email = handleInvalidEmail();
     const password = handleInvalidPassword();
@@ -82,6 +123,11 @@ function SignUp() {
     return false;
   }
 
+  /**
+   * Check if name is not empty and is valid format
+   *
+   * @returns {boolean} - True if both is true, false otherwise
+   */
   function handleInvalidName(): boolean {
     const name = formData.name?.trim();
     const nameLength = name.length;
@@ -108,6 +154,11 @@ function SignUp() {
     return true;
   }
 
+  /**
+   * Check if email is not empty and is valid format
+   *
+   * @returns {boolean} - True if both is true, false otherwise
+   */
   function handleInvalidEmail(): boolean {
     const email = formData.email?.trim();
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -135,7 +186,11 @@ function SignUp() {
 
     return true;
   }
-
+  /**
+   * Check if password is not empty, is long enough and is valid format
+   *
+   * @returns {boolean} - True if both is true, false otherwise
+   */
   function handleInvalidPassword(): boolean {
     const password = formData.password?.trim();
     const passwordLength = password.length;
@@ -164,6 +219,11 @@ function SignUp() {
     return true;
   }
 
+  /**
+   * Check if confirm password is not empty and matches the password
+   *
+   * @returns {boolean} - True if both is true, false otherwise
+   */
   function handleInvalidConfirmPassword(): boolean {
     const confirmPassword = formData.confirmPassword?.trim();
 
@@ -218,7 +278,7 @@ function SignUp() {
           type='submit'
           text='Sign up'
           className='bg-blue-900 text-white'
-          onClick={handleSignUp}
+          onClick={handleEmailSignUp}
         />
       </div>
 
@@ -229,6 +289,7 @@ function SignUp() {
         text='Sign up with Github'
         icon={<FaGithub />}
         className='bg-black text-white'
+        onClick={handleGithubSignUp}
       />
     </>
   );
