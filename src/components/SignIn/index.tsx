@@ -36,8 +36,8 @@ function SignIn() {
     e.preventDefault();
     // Check for invalid inputs (empty or just wrong format)
     if (!handleInvalidInputs()) return;
-    
-    setLoading(true)
+
+    setLoading(true);
 
     try {
       // The sign in attempt
@@ -50,7 +50,7 @@ function SignIn() {
       // Debug - [DELETE REMINDER]
       console.log(data, error);
 
-      setLoading(false)
+      setLoading(false);
 
       // Check if the e-mail or password was invalid
       if (error) {
@@ -59,9 +59,9 @@ function SignIn() {
           password: error.message,
         });
 
-        return
+        return;
       }
-      navigate('/home')
+      navigate('/home');
     } catch (error) {
       console.log(`handleEmailSignIn - Catch: ${error}`);
     }
@@ -84,7 +84,6 @@ function SignIn() {
 
       // Debug - [DELETE REMINDER]
       console.log(data, error);
-      
     } catch (error) {
       console.log(error);
     }
@@ -217,14 +216,15 @@ function SignIn() {
 
         <FormButton
           type='submit'
-          text='Sign in'
+          text={loading ? 'Loading...' : 'Sign in'}
           className='bg-blue-900 text-white'
           onClick={handleEmailSignIn}
+          loading={loading}
         />
 
         <a
           href='#'
-          className='text-center text-xs text-blue-700 hover:underline'
+          className='text-center text-xs text-blue-700 hover:underline lg:text-base'
         >
           Forgotten password?
         </a>

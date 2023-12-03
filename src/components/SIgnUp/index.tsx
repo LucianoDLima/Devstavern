@@ -20,6 +20,7 @@ interface InvalidInputTypes {
 }
 
 function SignUp() {
+  const [loading, setLoading] = useState(false)
   // Where the user's input data is stored
   const [formData, setFormData] = useState<FormDataTypes>({
     name: '',
@@ -44,6 +45,8 @@ function SignUp() {
     // Check for invalid inputs (empty or just wrong format)
     if (!handleInvalidInputs()) return;
 
+    setLoading(true)
+
     try {
       // The sign up attempt
       const { data, error } = await supabase.auth.signUp({
@@ -55,6 +58,7 @@ function SignUp() {
           },
         },
       });
+      setLoading(false)
 
       // Debug - [DELETE REMINDER]
       console.log(data, error);
@@ -66,7 +70,6 @@ function SignUp() {
         }));
         return;
       }
-      
       // If account is created successfully, reloads the page
       window.location.reload();
     } catch (error) {
@@ -276,9 +279,10 @@ function SignUp() {
 
         <FormButton
           type='submit'
-          text='Sign up'
+          text={loading ? 'Creating...' : 'Sign up'}
           className='bg-blue-900 text-white'
           onClick={handleEmailSignUp}
+          loading={loading}
         />
       </div>
 
