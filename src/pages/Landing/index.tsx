@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Hero from '../../components/Hero';
-import FormBase from '../../components/FormBase';
+import FormBase from '../../components/FormComponents/FormBase';
 
 function Landing() {
   const [isSignIn, setIsSignIn] = useState(true);

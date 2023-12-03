@@ -19,7 +19,10 @@ function FormBase({ isSignIn, onClick }: FormBaseProps) {
         </fieldset>
       </form>
 
-      <FormFooter isSignIn={isSignIn} onClick={onClick} />
+      <FormFooter
+        isSignIn={isSignIn}
+        onClick={onClick}
+      />
     </div>
   );
 }

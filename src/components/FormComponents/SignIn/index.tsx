@@ -2,7 +2,7 @@ import { FaGithub } from 'react-icons/fa';
 import FormInput from '../FormInput';
 import FormButton from '../FormButton';
 import { useState } from 'react';
-import { supabase } from '../../service/supabase';
+import { supabase } from '../../../service/supabase';
 import StraightLine from '../StraightLine';
 import { useNavigate } from 'react-router-dom';
 

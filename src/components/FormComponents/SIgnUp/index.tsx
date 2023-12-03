@@ -3,7 +3,7 @@ import FormButton from '../FormButton';
 import StraightLine from '../StraightLine';
 import { FaGithub } from 'react-icons/fa';
 import { useState } from 'react';
-import { supabase } from '../../service/supabase';
+import { supabase } from '../../../service/supabase';
 
 interface FormDataTypes {
   name: string;
@@ -20,7 +20,7 @@ interface InvalidInputTypes {
 }
 
 function SignUp() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   // Where the user's input data is stored
   const [formData, setFormData] = useState<FormDataTypes>({
     name: '',
@@ -45,7 +45,7 @@ function SignUp() {
     // Check for invalid inputs (empty or just wrong format)
     if (!handleInvalidInputs()) return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       // The sign up attempt
@@ -58,7 +58,7 @@ function SignUp() {
           },
         },
       });
-      setLoading(false)
+      setLoading(false);
 
       // Debug - [DELETE REMINDER]
       console.log(data, error);
