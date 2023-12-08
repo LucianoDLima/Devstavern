@@ -5,10 +5,12 @@ import { useState } from 'react';
 import { supabase } from '../../../service/supabase';
 import StraightLine from '../StraightLine';
 import { useNavigate } from 'react-router-dom';
+import FormBase from '../FormBase';
+import { FormFooterProps } from '../FormFooter';
 
 interface FormDataState {
-  email: string | null;
-  password: string | null;
+  email: string;
+  password: string;
 }
 
 interface InvalidInputState {
@@ -16,12 +18,15 @@ interface InvalidInputState {
   password: string;
 }
 
-function SignIn() {
+interface FormSignInProps extends FormFooterProps {}
+
+function FormSignIn({ text, anchor, redirect }: FormSignInProps) {
   const navigate = useNavigate();
+  
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormDataState>({
-    email: null,
-    password: null,
+    email: '',
+    password: '',
   });
 
   const [invalidInput, setInvalidInput] = useState<InvalidInputState>({
@@ -41,7 +46,6 @@ function SignIn() {
 
     try {
       // The sign in attempt
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email!,
         password: formData.password!,
@@ -200,35 +204,38 @@ function SignIn() {
       errorMessage: invalidInput.password,
     },
   ];
+
   return (
-    <>
-      <div className='flex flex-col gap-3'>
-        {inputDetails.map((input, index) => (
-          <FormInput
-            key={index}
-            type={input.type}
-            name={input.name}
-            placeholder={input.placeholder}
-            onChange={input.onChange}
-            errorMessage={input.errorMessage}
-          />
-        ))}
-
-        <FormButton
-          type='submit'
-          text={loading ? 'Loading...' : 'Sign in'}
-          className='bg-blue-900 text-white'
-          onClick={handleEmailSignIn}
-          loading={loading}
+    <FormBase
+      text={text}
+      anchor={anchor}
+      redirect={redirect}
+    >
+      {inputDetails.map((input, index) => (
+        <FormInput
+          key={index}
+          type={input.type}
+          name={input.name}
+          placeholder={input.placeholder}
+          onChange={input.onChange}
+          errorMessage={input.errorMessage}
         />
+      ))}
 
-        <a
-          href='#'
-          className='text-center text-xs text-blue-700 hover:underline lg:text-base'
-        >
-          Forgotten password?
-        </a>
-      </div>
+      <FormButton
+        type='submit'
+        text={loading ? 'Loading...' : 'Sign in'}
+        className='bg-blue-900 text-white'
+        onClick={handleEmailSignIn}
+        loading={loading}
+      />
+
+      <a
+        href='#'
+        className='text-center text-xs text-blue-700 hover:underline lg:text-base'
+      >
+        Forgotten password?
+      </a>
 
       <StraightLine />
 
@@ -239,8 +246,8 @@ function SignIn() {
         className='bg-black text-white'
         onClick={handleGithubSignIn}
       />
-    </>
+    </FormBase>
   );
 }
 
-export default SignIn;
+export default FormSignIn;

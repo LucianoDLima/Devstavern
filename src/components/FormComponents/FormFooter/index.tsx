@@ -1,20 +1,23 @@
+import { Link } from 'react-router-dom';
+
 export interface FormFooterProps {
-  isSignIn: boolean,
-  onClick: () => void
+  text: string;
+  anchor: string;
+  redirect: string;
 }
 
-function FormFooter({isSignIn, onClick}: FormFooterProps) {
+function FormFooter({ text, anchor, redirect }: FormFooterProps) {
   return (
     <div className='px-5 py-2 rounded-sm bg-secondaryLight font-white text-sm lg:text-xl flex justify-center gap-2'>
-        <p>{isSignIn ? "Don't have an account?" : 'Have an account?'}</p>
-        <button
-          className='text-blue-700 hover:underline'
-          onClick={onClick}
-        >
-          {isSignIn ? 'Create here!' : 'Sign in now!'}
-        </button>
-      </div>
-  )
+      <p>{text}</p>
+      <Link
+        to={redirect}
+        className='text-blue-700 hover:underline'
+      >
+        {anchor}
+      </Link>
+    </div>
+  );
 }
 
-export default FormFooter
+export default FormFooter;

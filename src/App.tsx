@@ -1,17 +1,21 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import LandingPage from './pages/Landing';
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import SignIn from './pages/SignIn';
+import SignUp from "./pages/SignUp";
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <SignIn />
+  },
+  {
+    path: '/signup',
+    element: <SignUp />
+  }
+])
+
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path='/'
-            element={<LandingPage />}
-          />
-        </Routes>
-      </BrowserRouter>
-    </>
+    <RouterProvider router={router} />
   );
 }
 

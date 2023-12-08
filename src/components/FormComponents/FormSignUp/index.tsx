@@ -4,6 +4,8 @@ import StraightLine from '../StraightLine';
 import { FaGithub } from 'react-icons/fa';
 import { useState } from 'react';
 import { supabase } from '../../../service/supabase';
+import FormBase from '../FormBase';
+import { FormFooterProps } from '../FormFooter';
 
 interface FormDataTypes {
   name: string;
@@ -19,7 +21,9 @@ interface InvalidInputTypes {
   confirmPassword: string;
 }
 
-function SignUp() {
+interface FormSignUpProps extends FormFooterProps {}
+
+function FormSignUp({ text, anchor, redirect }: FormSignUpProps) {
   const [loading, setLoading] = useState(false);
   // Where the user's input data is stored
   const [formData, setFormData] = useState<FormDataTypes>({
@@ -262,29 +266,31 @@ function SignUp() {
   ];
 
   return (
-    <>
-      <div className='flex flex-col gap-3'>
-        {formInputs.map((input, index) => {
-          return (
-            <FormInput
-              key={index}
-              type={input.type}
-              name={input.name}
-              placeholder={input.placeholder}
-              errorMessage={input.errorMessage}
-              onChange={handleChange}
-            />
-          );
-        })}
+    <FormBase
+      text={text}
+      anchor={anchor}
+      redirect={redirect}
+    >
+      {formInputs.map((input, index) => {
+        return (
+          <FormInput
+            key={index}
+            type={input.type}
+            name={input.name}
+            placeholder={input.placeholder}
+            errorMessage={input.errorMessage}
+            onChange={handleChange}
+          />
+        );
+      })}
 
-        <FormButton
-          type='submit'
-          text={loading ? 'Creating...' : 'Sign up'}
-          className='bg-blue-900 text-white'
-          onClick={handleEmailSignUp}
-          loading={loading}
-        />
-      </div>
+      <FormButton
+        type='submit'
+        text={loading ? 'Creating...' : 'Sign up'}
+        className='bg-blue-900 text-white'
+        onClick={handleEmailSignUp}
+        loading={loading}
+      />
 
       <StraightLine />
 
@@ -295,8 +301,8 @@ function SignUp() {
         className='bg-black text-white'
         onClick={handleGithubSignUp}
       />
-    </>
+    </FormBase>
   );
 }
 
-export default SignUp;
+export default FormSignUp;

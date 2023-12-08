@@ -1,29 +1,30 @@
 import FormFooter, { FormFooterProps } from '../FormFooter';
-import SignUp from '../SIgnUp';
-import SignIn from '../SignIn';
 
-interface FormBaseProps extends FormFooterProps {}
+interface FormBaseProps extends FormFooterProps {
+  children: React.ReactNode;
+}
 
-function FormBase({ isSignIn, onClick }: FormBaseProps) {
+function FormBase({ children, text, anchor, redirect }: FormBaseProps) {
   return (
-    <div className='flex flex-col gap-3'>
+    <section className='flex flex-col gap-3 '>
       <form
         action='submit'
-        className='text-sm lg:text-xl'
+        className='text-base lg:text-xl'
       >
-        <fieldset className='px-5 py-7 rounded-sm bg-secondaryLight'>
+        <fieldset className='flex flex-col gap-3 px-5 py-7 rounded-sm bg-secondaryLight'>
           <legend>
             <h2 className='sr-only'>Fill in the login detail</h2>
           </legend>
-          {isSignIn ? <SignIn /> : <SignUp />}
+          {children}
         </fieldset>
       </form>
 
       <FormFooter
-        isSignIn={isSignIn}
-        onClick={onClick}
+        text={text}
+        anchor={anchor}
+        redirect={redirect}
       />
-    </div>
+    </section>
   );
 }
 
